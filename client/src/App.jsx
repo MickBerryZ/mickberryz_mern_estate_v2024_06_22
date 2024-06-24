@@ -7,6 +7,8 @@ import About from "./pages/About";
 import Header from "./components/Header";
 
 export default function App() {
+  console.log("Rendering App component");
+
   return (
     <BrowserRouter>
       <Header />
