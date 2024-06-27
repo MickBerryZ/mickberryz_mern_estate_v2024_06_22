@@ -3,12 +3,13 @@
 @tailwind utilities;
 
 
-/* body {
+body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: rgb(241, 245,241);
   }
   
   .App {
     text-align: center;
-  } */
+  }
