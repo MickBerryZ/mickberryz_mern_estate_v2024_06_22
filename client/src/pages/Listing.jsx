@@ -69,7 +69,7 @@ export default function Listing() {
               </SwiperSlide>
             ))}
           </Swiper>
-          <div className="fixed top-[12%] right-[3%] z-10 border rounder-full w-12 h-12 flex justify-center items-center bg-slate-100 cursor-pointer">
+          <div className="fixed top-[13%] right-[3%] z-10 border rounder-full w-12 h-12 flex justify-center items-center bg-slate-100 cursor-pointer">
             <FaShare
               className="text-slate-500"
               onClick={() => {
@@ -86,15 +86,15 @@ export default function Listing() {
               Link Copied!
             </p>
           )}
-          <div className="flex flex-col max-w-4xl mx-auto p-3 my-7 gap-4">
-            <p className="text-2xl font-semibold">
+          <div className="flex flex-col max-w-4xl mx-auto p-3 my-7 gap-6">
+            <p className="text-2xl font-semibold break-words text-ellipsis">
               {listing.name} - ${" "}
               {listing.offer
                 ? listing.discountPrice.toLocaleString("en-US")
                 : listing.regularPrice.toLocaleString("en-US")}
               {listing.type === "rent" && " / month "}
             </p>
-            <p className="flex items-center mt-6 gap-2 text-slate-600 text-sm">
+            <p className="flex items-center mt-6 gap-2 text-slate-600 text-sm truncate text-ellipsis">
               <FaMapMarkerAlt className="text-green-700" />
               {listing.address}
             </p>
@@ -108,7 +108,7 @@ export default function Listing() {
                 </p>
               )}
             </div>
-            <p className="text-slate-800">
+            <p className="text-slate-800 break-words">
               <span className="font-semibold text-black">Decription - </span>
               {listing.description}
             </p>
@@ -137,7 +137,7 @@ export default function Listing() {
             {currentUser && listing.userRef !== currentUser._id && !contact && (
               <button
                 onClick={() => setContact(true)}
-                className="bg-slate-700 text-white rounded-lg uppercase ohver:opacity-95 p-3"
+                className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3"
               >
                 Contact landlord
               </button>
