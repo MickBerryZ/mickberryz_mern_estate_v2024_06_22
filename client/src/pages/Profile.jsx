@@ -61,9 +61,9 @@ export default function Profile() {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
-          setFormData({ ...formData, avatar: downloadURL })
+          setFormData({ ...formData, avatar: downloadURL }),
         );
-      }
+      },
     );
   };
 
@@ -155,7 +155,7 @@ export default function Profile() {
       }
 
       setUserListings((prev) =>
-        prev.filter((listing) => listing._id !== listingId)
+        prev.filter((listing) => listing._id !== listingId),
       );
     } catch (error) {
       console.log(error.message);

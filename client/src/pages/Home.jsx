@@ -13,6 +13,11 @@ export default function Home() {
   SwiperCore.use([Navigation]);
   console.log(offerListings);
 
+  // 👉 PUT THE NEW CODE RIGHT HERE:
+  if (offerListings && offerListings.length > 0) {
+    console.log("Image URL:", offerListings[0].imageUrls[0]);
+  }
+
   useEffect(() => {
     const fetchOfferListings = async () => {
       try {
@@ -75,15 +80,30 @@ export default function Home() {
         {offerListings &&
           offerListings.length > 0 &&
           offerListings.map((listing) => (
-            <SwiperSlide>
-              <div
+            // <SwiperSlide>
+            //   <div
+            //     style={{
+            //       background: `url(${listing.imageUrls[0]}) center no-repeat`,
+            //       backgroundSize: "cover",
+            //     }}
+            //     className="h-[500px]"
+            //     key={listing._id}
+            //   ></div>
+            // </SwiperSlide>
+            <SwiperSlide key={listing._id}>
+              {/* <div
                 style={{
                   background: `url(${listing.imageUrls[0]}) center no-repeat`,
                   backgroundSize: "cover",
+                  backgroundColor: "red",
                 }}
-                className="h-[500px]"
-                key={listing._id}
-              ></div>
+                className="h-[500px] w-full"
+              ></div> */}
+              <img
+                src={listing.imageUrls[0]}
+                alt="Listing image"
+                className="h-[500px] w-full object-cover"
+              />
             </SwiperSlide>
           ))}
       </Swiper>
