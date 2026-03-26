@@ -1,11 +1,5 @@
 import { useSelector } from "react-redux";
 import { useRef, useState, useEffect } from "react";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
 import { app } from "../firebase";
 import {
   updateUserStart,
@@ -31,11 +25,7 @@ export default function Profile() {
   const [userListings, setUserListings] = useState([]);
   const dispatch = useDispatch();
 
-  // firebase storage
-  // allow read;
-  // allow write: if
-  // request.resource.size < 10 * 1024 * 1024 &&
-  // request.resource.contentType.matches('image/.*')
+  console.log("WHO AM I?", currentUser);
 
   useEffect(() => {
     if (file) {
@@ -43,28 +33,41 @@ export default function Profile() {
     }
   }, [file]);
 
-  const handleFileUpload = (file) => {
-    const storage = getStorage(app);
-    const fileName = new Date().getTime() + file.name;
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+  const handleFileUpload = async (file) => {
+    // reset previous upload state
+    setFileUploadError(false);
+    setFilePercentage(10); // start with 10% to show that the upload has started
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setFilePercentage(Math.round(progress));
-      },
-      (error) => {
+    // Prepare the file to be sent to the backend
+    const uploadData = new FormData();
+    uploadData.append("images", file); // 'images' should match the field name expected by the backend
+
+    try {
+      setFilePercentage(40);
+
+      // Call your NEW CLOUDINARY UPLOAD ENDPOINT
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
         setFileUploadError(true);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
-          setFormData({ ...formData, avatar: downloadURL }),
-        );
-      },
-    );
+        setFilePercentage(0);
+        console.error("Upload failed:", data.error || "Unknown error");
+        return;
+      }
+
+      // Upload the form with the new avatar URL
+      setFormData({ ...formData, avatar: data[0] }); // Assuming the backend returns an array of image URLs
+      setFilePercentage(100);
+    } catch (error) {
+      setFileUploadError(true);
+      setFilePercentage(0);
+      console.error("Upload failed:", error.message);
+    }
   };
 
   const handleChange = (e) => {
@@ -175,9 +178,17 @@ export default function Profile() {
         />
         <img
           onClick={() => fileRef.current.click()}
-          src={formData.avatar || currentUser.avatar}
+          src={
+            formData.avatar ||
+            currentUser.avatar ||
+            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+          }
           alt="profile"
           className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
+          onError={(e) => {
+            e.target.src =
+              "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+          }}
         />
         <p className="text-sm self-center">
           {fileUploadError ? (

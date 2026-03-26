@@ -1,5 +1,5 @@
 import { FaSearch } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
@@ -7,6 +7,7 @@ export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -66,6 +67,10 @@ export default function Header() {
                 className="rounded-full h-7 w-7 object-cover text-orange-500"
                 src={currentUser.avatar}
                 alt="Profile"
+                onError={(e) => {
+                  e.target.src =
+                    "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+                }}
               />
             ) : (
               <li className=" text-orange-700 hover:underline">Sign in</li>
