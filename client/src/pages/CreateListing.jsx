@@ -33,8 +33,7 @@ export default function CreateListing() {
   const [loading, setLoading] = useState(false);
   console.log(formData);
 
-  const handleImageSubmit = async (e) => {
-    // Assume you have your selected files saved in a state called 'files'
+  const handleImageSubmit = async () => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       setUploading(true);
       setImageUploadError(false);
@@ -46,7 +45,6 @@ export default function CreateListing() {
       }
 
       try {
-        // Send the files to our new backend route
         const res = await fetch("/api/upload", {
           method: "POST",
           body: uploadData,
@@ -60,14 +58,13 @@ export default function CreateListing() {
           return;
         }
 
-        // Save the new local URLs to your form state
         setFormData({
           ...formData,
           imageUrls: formData.imageUrls.concat(data),
         });
         setImageUploadError(false);
         setUploading(false);
-      } catch (error) {
+      } catch (err) {
         setImageUploadError("Image upload failed (2 mb max per image)");
         setUploading(false);
       }
@@ -121,6 +118,7 @@ export default function CreateListing() {
         return setError("You must upload at least one image");
       if (formData.regularPrice < +formData.discountPrice)
         return setError("Discount price must be lover");
+
       setLoading(true);
       setError(false);
       const res = await fetch(`/api/listing/create`, {
@@ -137,8 +135,8 @@ export default function CreateListing() {
         setError(data.message);
       }
       navigate(`/listing/${data._id}`);
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      setError(err.message);
       setLoading(false);
     }
   };
@@ -350,6 +348,7 @@ export default function CreateListing() {
               </div>
             ))}
 
+          {error && <p className="text-red-700 text-sm">{error}</p>}
           <button
             disabled={loading || uploading}
             className="p-3 bg-indigo-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-10"

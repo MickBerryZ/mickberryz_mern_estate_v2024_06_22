@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
 import { useRef, useState, useEffect } from "react";
-import { app } from "../firebase";
 import {
   updateUserStart,
   updateUserSuccess,
@@ -33,18 +32,16 @@ export default function Profile() {
     }
   }, [file]);
 
-  const handleFileUpload = async (file) => {
-    // reset previous upload state
+  const handleFileUpload = async (fileToUpload) => {
     setFileUploadError(false);
-    setFilePercentage(10); // start with 10% to show that the upload has started
+    setFilePercentage(10);
 
     // Prepare the file to be sent to the backend
     const uploadData = new FormData();
-    uploadData.append("images", file); // 'images' should match the field name expected by the backend
+    uploadData.append("images", fileToUpload); // 'images' should match the field name expected by the backend
 
     try {
       setFilePercentage(40);
-
       // Call your NEW CLOUDINARY UPLOAD ENDPOINT
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -61,12 +58,12 @@ export default function Profile() {
       }
 
       // Upload the form with the new avatar URL
-      setFormData({ ...formData, avatar: data[0] }); // Assuming the backend returns an array of image URLs
+      setFormData((prev) => ({ ...prev, avatar: data[0] })); // Assuming the backend returns an array of image URLs
       setFilePercentage(100);
-    } catch (error) {
+    } catch (err) {
       setFileUploadError(true);
       setFilePercentage(0);
-      console.error("Upload failed:", error.message);
+      console.error("Upload failed:", err.message);
     }
   };
 
@@ -126,7 +123,7 @@ export default function Profile() {
       }
       dispatch(deleteUserSuccess(data));
     } catch (error) {
-      dispatch(deleteUserFailure(data.message));
+      dispatch(deleteUserFailure(error.message));
     }
   };
 

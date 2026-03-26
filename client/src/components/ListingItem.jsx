@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { MdLocationOn } from "react-icons/md";
+import PropTypes from "prop-types";
 
 export default function ListingItem({ listing }) {
   return (
@@ -28,9 +29,6 @@ export default function ListingItem({ listing }) {
           </p>
           <p className="text-slate-500 mt-2 font-semibold flex items-center">
             $ {+listing.regularPrice - +listing.discountPrice}
-            {/* {listing.offer
-              ? listing.discountPrice.toLocaleString("en-US")
-              : listing.regularPrice.toLocaleString("en-US")} */}
             {listing.type === "rent" && " / month"}
           </p>
           <div className="text-slate-700 flex gap-4">
@@ -50,3 +48,20 @@ export default function ListingItem({ listing }) {
     </div>
   );
 }
+
+ListingItem.propTypes = {
+  listing: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    address: PropTypes.string.isRequired,
+    regularPrice: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+      .isRequired,
+    discountPrice: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+      .isRequired,
+    type: PropTypes.string.isRequired,
+    imageUrls: PropTypes.array.isRequired,
+    bedrooms: PropTypes.number.isRequired,
+    bathrooms: PropTypes.number.isRequired,
+  }).isRequired,
+};
