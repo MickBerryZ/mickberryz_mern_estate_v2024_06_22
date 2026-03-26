@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://mickberryz-mern-estate-v2024-06-22.onrender.com/api/$1"
+    }
+  ]
+}
