@@ -58,10 +58,10 @@ export default function Home() {
       <div className="flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto">
         <h1 className="text-indigo-700 font-bold text-3xl lg:text-6xl">
           Find your next
-          <span className="text-indigo-500"> Perfect</span> <br />
+          <span className="text-indigo-400"> Perfect</span> <br />
           place with ease
         </h1>
-        <div className="text-gray-400 text-xs sm:text-sm">
+        <div className="text-slate-400 text-xs sm:text-sm">
           Mickey Estate is the best place to find your next perfect place to
           live.
           <br />
@@ -80,36 +80,19 @@ export default function Home() {
         {offerListings &&
           offerListings.length > 0 &&
           offerListings.map((listing) => (
-            // <SwiperSlide>
-            //   <div
-            //     style={{
-            //       background: `url(${listing.imageUrls[0]}) center no-repeat`,
-            //       backgroundSize: "cover",
-            //     }}
-            //     className="h-[500px]"
-            //     key={listing._id}
-            //   ></div>
-            // </SwiperSlide>
             <SwiperSlide key={listing._id}>
-              {/* <div
+              <div
                 style={{
                   background: `url(${listing.imageUrls[0]}) center no-repeat`,
                   backgroundSize: "cover",
-                  backgroundColor: "red",
                 }}
-                className="h-[500px] w-full"
-              ></div> */}
-              <img
-                src={listing.imageUrls[0]}
-                alt="Listing image"
-                className="h-[500px] w-full object-cover"
-              />
+                className="h-[500px]"
+              ></div>
             </SwiperSlide>
           ))}
       </Swiper>
 
       {/* listing results for offer, sale and rent */}
-
       <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
         {offerListings && offerListings.length > 0 && (
           <div className="">
@@ -118,7 +101,7 @@ export default function Home() {
                 Recent offers
               </h2>
               <Link
-                className="text-sm text-blue-800 hover:underline"
+                className="text-sm text-indigo-800 hover:underline"
                 to={"/search?offer=true"}
               >
                 Show more offers

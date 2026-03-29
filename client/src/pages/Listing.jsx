@@ -14,6 +14,7 @@ import {
   FaShare,
 } from "react-icons/fa";
 import Contact from "../components/Contact";
+import Map from "../components/Map";
 
 export default function Listing() {
   SwiperCore.use([Navigation]);
@@ -112,6 +113,9 @@ export default function Listing() {
               <span className="font-semibold text-black">Decription - </span>
               {listing.description}
             </p>
+
+            <Map address={listing.address} />
+
             <ul className="text-green-900 font-semibold text-sm flex flex-wrap items-center gap-4 sm:gap-6">
               <li className="flex items-center gap-1 whitespace-nowrap">
                 <FaBed className="text-lg" />

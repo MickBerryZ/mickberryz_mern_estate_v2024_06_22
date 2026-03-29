@@ -14,6 +14,8 @@ import { v2 as cloudinary } from 'cloudinary';
 
 const __dirname = path.resolve()
 
+
+
 // This tells dotenv to look in the root folder specifically
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
