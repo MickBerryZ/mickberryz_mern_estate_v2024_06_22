@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import PropTypes from "prop-types";
 
 // --- Version 4 Icon Fix ---
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -26,6 +27,10 @@ function ChangeView({ center }) {
   }, [center, map]);
   return null;
 }
+
+ChangeView.propTypes = {
+  center: PropTypes.array.isRequired,
+};
 
 export default function Map({ address }) {
   const [geoData, setGeoData] = useState({ lat: 13.7563, lng: 100.5018 });
@@ -56,7 +61,14 @@ export default function Map({ address }) {
   }, [address]);
 
   return (
-    <div style={{ height: "400px", width: "100%", marginBottom: "2rem" }}>
+    <div
+      style={{
+        height: "400px",
+        width: "100%",
+        position: "relative",
+        zIndex: 0,
+      }}
+    >
       {loading ? (
         <div className="h-full w-full flex items-center justify-center bg-slate-100 rounded-lg border-2 border-dashed">
           Searching for location...
@@ -81,3 +93,7 @@ export default function Map({ address }) {
     </div>
   );
 }
+
+Map.propTypes = {
+  address: PropTypes.string.isRequired,
+};

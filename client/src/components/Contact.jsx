@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 export default function Contact({ listing }) {
   const [landlord, setLandlord] = useState(null);
   const [message, setMessage] = useState("");
+
   const onChange = (e) => {
     setMessage(e.target.value);
   };
@@ -51,3 +53,11 @@ export default function Contact({ listing }) {
     </>
   );
 }
+
+// 🎯 PLACE IT HERE (Outside the function)
+Contact.propTypes = {
+  listing: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    userRef: PropTypes.string.isRequired,
+  }).isRequired,
+};

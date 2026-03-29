@@ -8,6 +8,7 @@ import {
 import { app } from "../firebase";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import Map from "../components/Map";
 
 export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);
@@ -33,6 +34,12 @@ export default function CreateListing() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Map & Address States
+  const [addressVerified, setAddressVerified] = useState(true);
+  const [verifying, setVerifying] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [mapAddress, setMapAddress] = useState("");
+
   useEffect(() => {
     const fetchListing = async () => {
       const listingId = params.listingId;
@@ -43,9 +50,10 @@ export default function CreateListing() {
         return;
       }
       setFormData(data);
+      setMapAddress(data.address);
     };
     fetchListing();
-  }, []);
+  }, [params.listingId]);
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -95,7 +103,7 @@ export default function CreateListing() {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             resolve(downloadURL);
           });
-        }
+        },
       );
     });
   };
@@ -109,31 +117,56 @@ export default function CreateListing() {
 
   const handleChange = (e) => {
     if (e.target.id === "sale" || e.target.id === "rent") {
-      setFormData({
-        ...formData,
-        type: e.target.id,
-      });
+      setFormData({ ...formData, type: e.target.id });
     }
-    if (
-      e.target.id === "parking" ||
-      e.target.id === "furnished" ||
-      e.target.id === "offer"
-    ) {
-      setFormData({
-        ...formData,
-        [e.target.id]: e.target.checked,
-      });
+    if (["parking", "furnished", "offer"].includes(e.target.id)) {
+      setFormData({ ...formData, [e.target.id]: e.target.checked });
     }
 
-    if (
-      e.target.type === "number" ||
-      e.target.type === "text" ||
-      e.target.type === "textarea"
-    ) {
-      setFormData({
-        ...formData,
-        [e.target.id]: e.target.value,
-      });
+    if (["number", "text", "textarea"].includes(e.target.type)) {
+      setFormData({ ...formData, [e.target.id]: e.target.value });
+    }
+  };
+
+  // The Address Search Logic
+  const handleAddressSearch = async (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, address: value });
+    setAddressVerified(false); // They changed the text, so it's unverified again
+
+    if (value.length > 3) {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${value}&limit=5`,
+        { headers: { "User-Agent": "MickBerryz_App" } },
+      );
+      const data = await res.json();
+      setSuggestions(data);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  // The Verify Button Logic
+  const handleVerifyAddress = async () => {
+    if (!formData.address) return alert("Please enter an address first!");
+    try {
+      setVerifying(true);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.address)}`,
+        { headers: { "User-Agent": "MickBerryz_App" } },
+      );
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setAddressVerified(true);
+        setMapAddress(formData.address); // Move the map!
+        alert("Location found! Your map pin is ready.");
+      } else {
+        setAddressVerified(false);
+        alert("Address not found on map. Try being more specific.");
+      }
+      setVerifying(false);
+    } catch (error) {
+      setVerifying(false);
     }
   };
 
@@ -144,6 +177,9 @@ export default function CreateListing() {
         return setError("You must upload at least one image");
       if (formData.regularPrice < +formData.discountPrice)
         return setError("Discount price must be lover");
+      if (!addressVerified)
+        return setError("Please verify the address on the map first!");
+
       setLoading(true);
       setError(false);
       const res = await fetch(`/api/listing/update/${params.listingId}`, {
@@ -158,6 +194,7 @@ export default function CreateListing() {
       setLoading(false);
       if (data.success === false) {
         setError(data.message);
+        return;
       }
       navigate(`/listing/${data._id}`);
     } catch (error) {
@@ -172,6 +209,7 @@ export default function CreateListing() {
         Update a Listings
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+        {/* --- LEFT COLUMN --- */}
         <div className="flex flex-col gap-4 flex-1">
           <input
             type="text"
@@ -193,15 +231,7 @@ export default function CreateListing() {
             onChange={handleChange}
             value={formData.description}
           />
-          <input
-            type="text"
-            placeholder="Address"
-            className="border p-3 rounded-lg"
-            id="address"
-            required
-            onChange={handleChange}
-            value={formData.address}
-          />
+
           <div className="flex gap-6 flex-wrap">
             <div className="flex gap-2">
               <input
@@ -319,6 +349,68 @@ export default function CreateListing() {
                     <span className="text-xs">($ / month)</span>
                   )}
                 </div>
+              </div>
+            )}
+          </div>
+          {/* 📍 ADDRESS & MAP SECTION */}
+          <div className="relative flex flex-col gap-2">
+            <input
+              type="text"
+              placeholder="Address"
+              className="border p-3 rounded-lg"
+              id="address"
+              required
+              onChange={handleChange}
+              value={formData.address}
+            />
+
+            {/* Suggestion Dropdown */}
+            {suggestions.length > 0 && (
+              <ul className="absolute top-[52px] left-0 z-50 bg-white border w-full rounded-md shadow-2xl max-h-48 overflow-y-auto">
+                {suggestions.map((place) => (
+                  <li
+                    key={place.place_id}
+                    className="p-3 hover:bg-indigo-100 cursor-pointer text-sm border-b"
+                    onClick={() => {
+                      setFormData({ ...formData, address: place.display_name });
+                      setMapAddress(place.display_name); // Move Map!
+                      setAddressVerified(true);
+                      setSuggestions([]);
+                    }}
+                  >
+                    {place.display_name}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <button
+              type="button"
+              onClick={handleVerifyAddress}
+              className="text-indigo-700 border border-indigo-700 p-2 rounded-lg uppercase hover:bg-indigo-50 font-semibold text-sm transition-all"
+            >
+              {verifying ? "Checking..." : "Verify Address on Map"}
+            </button>
+            {addressVerified && (
+              <p className="text-green-700 text-xs font-bold animate-pulse">
+                ✓ Location verified
+              </p>
+            )}
+
+            {/* 🗺️ THE MAP PREVIEW */}
+            {mapAddress && (
+              <div className="mt-2 border-t pt-4">
+                <p className="font-semibold mb-2 text-indigo-700 flex items-center gap-2 text-sm">
+                  <span className="w-2 h-2 bg-indigo-500 rounded-full animate-ping"></span>
+                  Location Preview:
+                </p>
+                <Map key={mapAddress} address={mapAddress} />
+                {!addressVerified && formData.address && (
+                  <p className="text-amber-600 text-[10px] mt-2 italic font-medium">
+                    ⚠️ Map previewing original address. Click "Verify" to lock
+                    in changes.
+                  </p>
+                )}
               </div>
             )}
           </div>
