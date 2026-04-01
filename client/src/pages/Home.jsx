@@ -10,48 +10,84 @@ export default function Home() {
   const [offerListings, setOfferListings] = useState([]);
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isWakingServer, setIsWakingServer] = useState(false);
+
   SwiperCore.use([Navigation]);
   console.log(offerListings);
 
-  // 👉 PUT THE NEW CODE RIGHT HERE:
+  // PUT THE NEW CODE RIGHT HERE:
   if (offerListings && offerListings.length > 0) {
     console.log("Image URL:", offerListings[0].imageUrls[0]);
   }
 
   useEffect(() => {
-    const fetchOfferListings = async () => {
-      try {
-        const res = await fetch("/api/listing/get?offer=true&limit=4");
-        const data = await res.json();
-        setOfferListings(data);
-        fetchRentListings();
-      } catch (error) {
-        console.log(error);
-      }
-    };
+    // start the 5 second timer to wake up the server
+    const wakeTimer = setTimeout(() => {
+      setIsWakingServer(true); // If 5 seconds pass, the server is likely waking up
+    }, 5000);
 
-    const fetchRentListings = async () => {
+    const fetchAllListings = async () => {
       try {
-        const res = await fetch("/api/listing/get?type=rent&limit=4");
-        const data = await res.json();
-        setRentListings(data);
-        fetchSaleListings();
-      } catch (error) {
-        console.log(error);
-      }
-    };
+        setIsLoading(true); // Start loading when we begin fetching
 
-    const fetchSaleListings = async () => {
-      try {
-        const res = await fetch("/api/listing/get?type=sale&limit=4");
-        const data = await res.json();
-        setSaleListings(data);
+        // Fetch Offers
+        const resOffer = await fetch("/api/listing/get?offer=true&limit=4");
+        const dataOffer = await resOffer.json();
+        setOfferListings(dataOffer);
+
+        // Fetch Rend
+        const resRent = await fetch("/api/listing/get?type=rent&limit=4");
+        const dataRent = await resRent.json();
+        setRentListings(dataRent);
+
+        // Fetch Sale
+        const resSale = await fetch("/api/listing/get?type=sale&limit=4");
+        const dataSale = await resSale.json();
+        setSaleListings(dataSale);
       } catch (error) {
         console.log(error);
+      } finally {
+        // Clear the loading state and turn off loading
+        clearTimeout(wakeTimer);
+        setIsWakingServer(false);
+        setIsLoading(false);
       }
     };
-    fetchOfferListings();
+    fetchAllListings();
+    // Cleanup the timer if ueser leave
+    return () => clearTimeout(wakeTimer);
   }, []);
+
+  // Smart Loading UI: Show a message if the server is waking up, otherwise show the listings
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4">
+        {/* Spinning Circle */}
+        <div className="w-16 h-16 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin"></div>
+
+        {/* Dynamic Text */}
+        {isWakingServer ? (
+          <div className="text-center animate-pulse px-4">
+            <p className="text-amber-600 font-semibold text-xl">
+              Our free server is waking up from a nap! 😴
+            </p>
+            <p className="text-gray-500 text-sm mt-2">
+              This usually takes about 40-50 seconds. Thanks for your patience!
+              🚀
+            </p>
+          </div>
+        ) : (
+          <p className="text-gray-500 text-lg animate-pulse font-semibold">
+            Loading Mickey estates...
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Main content when data is loading successfully
   return (
     <div>
       {/* top */}
