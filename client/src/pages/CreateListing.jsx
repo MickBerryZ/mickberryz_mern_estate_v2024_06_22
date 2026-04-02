@@ -346,7 +346,7 @@ export default function CreateListing() {
                 Location Preview:
               </p>
               {/* If no address yet, it defaults to Bangkok. If they type, it moves! */}
-              <Map key={formData} address={formData} />
+              <Map key={mapAddress} address={mapAddress} />
 
               {!addressVerified && formData.address && (
                 <p className="text-amber-600 text-xs mt-2 italic">

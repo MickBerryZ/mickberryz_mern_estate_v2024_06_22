@@ -7,7 +7,7 @@ import "swiper/css/bundle";
 import ListingItem from "../components/ListingItem";
 
 export default function Home() {
-  const [offerListings, setOfferListings] = useState([]);
+  const [recentListings, setRecentListings] = useState([]);
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
 
@@ -15,11 +15,10 @@ export default function Home() {
   const [isWakingServer, setIsWakingServer] = useState(false);
 
   SwiperCore.use([Navigation]);
-  console.log(offerListings);
 
   // PUT THE NEW CODE RIGHT HERE:
-  if (offerListings && offerListings.length > 0) {
-    console.log("Image URL:", offerListings[0].imageUrls[0]);
+  if (recentListings && recentListings.length > 0) {
+    console.log("Image URL:", recentListings[0].imageUrls[0]);
   }
 
   useEffect(() => {
@@ -32,10 +31,10 @@ export default function Home() {
       try {
         setIsLoading(true); // Start loading when we begin fetching
 
-        // Fetch Offers
-        const resOffer = await fetch("/api/listing/get?offer=true&limit=4");
-        const dataOffer = await resOffer.json();
-        setOfferListings(dataOffer);
+        // Fetch Recent
+        const resRecent = await fetch("/api/listing/get?limit=4");
+        const dataRecent = await resRecent.json();
+        setRecentListings(dataRecent);
 
         // Fetch Rend
         const resRent = await fetch("/api/listing/get?type=rent&limit=4");
@@ -113,16 +112,16 @@ export default function Home() {
 
       {/* swiper */}
       <Swiper navigation>
-        {offerListings &&
-          offerListings.length > 0 &&
-          offerListings.map((listing) => (
+        {recentListings &&
+          recentListings.length > 0 &&
+          recentListings.map((listing) => (
             <SwiperSlide key={listing._id}>
               <div
                 style={{
-                  background: `url(${listing.imageUrls[0]}) center no-repeat`,
+                  background: `url("${listing.imageUrls[0] || "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}") center no-repeat`,
                   backgroundSize: "cover",
                 }}
-                className="h-[500px]"
+                className="h-[500px] w-full rounded-lg relative"
               ></div>
             </SwiperSlide>
           ))}
@@ -130,7 +129,7 @@ export default function Home() {
 
       {/* listing results for offer, sale and rent */}
       <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
-        {offerListings && offerListings.length > 0 && (
+        {/* {recentListings && recentListings.length > 0 && (
           <div className="">
             <div className="my-3">
               <h2 className="text-2xl font-semibold text-indigo-600">
@@ -144,12 +143,12 @@ export default function Home() {
               </Link>
             </div>
             <div className="flex flex-wrap gap-4">
-              {offerListings.map((listing) => (
+              {recentListings.map((listing) => (
                 <ListingItem listing={listing} key={listing._id} />
               ))}
             </div>
           </div>
-        )}
+        )} */}
         {rentListings && rentListings.length > 0 && (
           <div className="">
             <div className="my-3">
